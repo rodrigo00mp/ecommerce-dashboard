@@ -32,10 +32,9 @@ def sales_per_month(year):
   sortedDf = selectedYear_df.sort_values(by='Order Date').reset_index()
 
   #Group by month and sum Sales
-  grouping = sortedDf.groupby(sortedDf['Year-month'])['Sales'].sum().reset_index()
-
+  grouping = sortedDf.groupby(['Year-month', 'Category'])['Sales'].sum().reset_index()
   #Create plotly figure
-  fig = px.bar(grouping, x='Year-month', y='Sales',
+  fig = px.bar(grouping, x='Year-month', y='Sales', color='Category',
               labels={'Year-month': 'Month', 'Sales': 'Total Sales'},
              title='Sales per month')
   st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -55,8 +54,8 @@ def sales_per_year():
 
 def get_top_products(year):
   df_products = df[df['Year'] == year]
-  top_products = df_products.groupby('Product ID')['Profit'].sum().sort_values(ascending=True).reset_index()
-  fig = px.bar(top_products.tail(10), x='Profit', y='Product ID', title='Top Products')
+  top_products = df_products.groupby(['Product ID','Product Name'])['Profit'].sum().sort_values(ascending=True).reset_index()
+  fig = px.bar(top_products.tail(10), x='Profit', y='Product ID', title='Top Products',  hover_data=['Product ID', 'Product Name', 'Profit'])
   st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 def calculate_metrics(year):
@@ -92,7 +91,7 @@ with met3:
   st.metric('Average Order Value', millify(aov), border=True)
 
 
-top_left, top_right = st.columns(2)
+top_left, top_right = st.columns([0.65,0.35])
 with top_left:
   #st.subheader("Sales")
   sales_per_month(year_dropdown)
