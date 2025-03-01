@@ -26,9 +26,10 @@ def load_data(path:str):
 
 #Monthly Sales Chart#
 
-def sales_per_month():
+def sales_per_month(year):
   #Sort values by Order Date in descending order
-  sortedDf = df.sort_values(by='Order Date').reset_index()
+  selectedYear_df = df[df['Year'] == year]
+  sortedDf = selectedYear_df.sort_values(by='Order Date').reset_index()
 
   #Group by month and sum Sales
   grouping = sortedDf.groupby(sortedDf['Year-month'])['Sales'].sum().reset_index()
@@ -52,27 +53,34 @@ def sales_per_year():
              title='Sales per Year')
   st.plotly_chart(fig, use_container_width=True,config={'displayModeBar': False})
 
-def get_top_products():
-  df_products = df.copy()
+def get_top_products(year):
+  df_products = df[df['Year'] == year]
   top_products = df_products.groupby('Product ID')['Profit'].sum().sort_values(ascending=True).reset_index()
-  fig = px.bar(top_products.tail(10), x='Profit', y='Product ID')
+  fig = px.bar(top_products.tail(10), x='Profit', y='Product ID', title='Top Products')
   st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
+def calculate_metrics(year):
+  selectedYear_df = df[df['Year'] == year]
+  orders = selectedYear_df['Order ID'].nunique()
+  aov = selectedYear_df.groupby(selectedYear_df['Order ID'])['Sales'].sum().mean()
+  sales = selectedYear_df['Sales'].sum()
+  return orders, aov, sales
 # --------------------------------------- #
 
 df = load_data('ecomm_sales_data.csv')
  #Convert Order Date to datetime format
+
+with st.sidebar:
+  year_dropdown = st.selectbox("Year", np.sort(df['Year'].unique()))
+
+
 with st.expander('Sales Data Preview'):
   st.dataframe(df, column_config={'Order Date': st.column_config.DateColumn(format="DD/MM/YYYY"), 'Ship Date': st.column_config.DateColumn(format="DD/MM/YYYY")})
 # Metrics
 
-orders =df['Order ID'].nunique()
-aov = df.groupby(df['Order ID'])['Sales'].sum().mean()
-sales = df['Sales'].sum()
-
-# Display in Streamlit
-
 met1, met2, met3 = st.columns(3)
+
+orders, aov, sales = calculate_metrics(year_dropdown)
 
 with met1:
   st.metric('Total Orders', orders, border=True)
@@ -83,21 +91,15 @@ with met2:
 with met3:
   st.metric('Average Order Value', millify(aov), border=True)
 
-with st.sidebar:
-  sales_dropdown = st.selectbox("Year", np.sort(df['Year'].unique()), label_visibility='collapsed')
 
-top_left, top_right = st.columns([0.7,0.3])
+top_left, top_right = st.columns(2)
 with top_left:
-  st.subheader("Sales")
-  if sales_dropdown == 'Month':
-    #Monthly Sales
-    sales_per_month()
-  else:
-    sales_per_year()
+  #st.subheader("Sales")
+  sales_per_month(year_dropdown)
 
 with top_right:
-    st.markdown("### Top 10 Products ###")
-    get_top_products()
+    #st.markdown("### Top 10 Products ###")
+    get_top_products(year_dropdown)
     
 #else:
 
