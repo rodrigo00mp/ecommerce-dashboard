@@ -97,16 +97,21 @@ with met3:
   st.metric('Average Order Value', millify(aov), border=True)
 
 
-top_left, top_right = st.columns([0.65,0.35])
+top_left, top_right = st.columns([0.7, 0.3])
+bottom_left, bottom_middle, bottom_right = st.columns([0.35,0.35,0.3])
 with top_left:
   #st.subheader("Sales")
   sales_per_month(year_dropdown)
 
 with top_right:
-    #st.markdown("### Top 10 Products ###")
-    get_top_products(year_dropdown)
+  #st.markdown("### Top 10 Products ###")
+  get_top_products(year_dropdown)
 
-category_breakdown(year_dropdown)
+with bottom_left:
+  #st.markdown("### Top 10 Products ###")
+  category_breakdown(year_dropdown)
+
+
 #else:
 
   #Create plotly figure
