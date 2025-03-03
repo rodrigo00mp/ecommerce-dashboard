@@ -64,6 +64,12 @@ def calculate_metrics(year):
   aov = selectedYear_df.groupby(selectedYear_df['Order ID'])['Sales'].sum().mean()
   sales = selectedYear_df['Sales'].sum()
   return orders, aov, sales
+
+def category_breakdown(year):
+  selectedYear_df = df[df['Year'] == year]
+  categories_breakdown = selectedYear_df.groupby(['Category', 'Sub-Category'])['Sales'].sum().reset_index()
+  fig = px.bar(categories_breakdown, x='Category', y='Sales', color='Sub-Category', title='Sales per Category')
+  st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 # --------------------------------------- #
 
 df = load_data('ecomm_sales_data.csv')
@@ -73,8 +79,8 @@ with st.sidebar:
   year_dropdown = st.selectbox("Year", np.sort(df['Year'].unique()))
 
 
-with st.expander('Sales Data Preview'):
-  st.dataframe(df, column_config={'Order Date': st.column_config.DateColumn(format="DD/MM/YYYY"), 'Ship Date': st.column_config.DateColumn(format="DD/MM/YYYY")})
+#with st.expander('Sales Data Preview'):
+  #st.dataframe(df, column_config={'Order Date': st.column_config.DateColumn(format="DD/MM/YYYY"), 'Ship Date': st.#column_config.DateColumn(format="DD/MM/YYYY")})
 # Metrics
 
 met1, met2, met3 = st.columns(3)
@@ -91,15 +97,21 @@ with met3:
   st.metric('Average Order Value', millify(aov), border=True)
 
 
-top_left, top_right = st.columns([0.65,0.35])
+top_left, top_right = st.columns([0.7, 0.3])
+bottom_left, bottom_middle, bottom_right = st.columns([0.35,0.35,0.3])
 with top_left:
   #st.subheader("Sales")
   sales_per_month(year_dropdown)
 
 with top_right:
-    #st.markdown("### Top 10 Products ###")
-    get_top_products(year_dropdown)
-    
+  #st.markdown("### Top 10 Products ###")
+  get_top_products(year_dropdown)
+
+with bottom_left:
+  #st.markdown("### Top 10 Products ###")
+  category_breakdown(year_dropdown)
+
+
 #else:
 
   #Create plotly figure
