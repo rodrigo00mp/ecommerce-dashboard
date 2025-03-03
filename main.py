@@ -32,11 +32,13 @@ def sales_per_month(year):
   sortedDf = selectedYear_df.sort_values(by='Order Date').reset_index()
 
   #Group by month and sum Sales
-  grouping = sortedDf.groupby(['Year-month', 'Category'])['Sales'].sum().reset_index()
+  grouping = sortedDf.groupby(['Year-month'])['Sales'].sum().reset_index()
   #Create plotly figure
-  fig = px.bar(grouping, x='Year-month', y='Sales', color='Category',
+  fig = px.line(grouping, x='Year-month', y='Sales',
               labels={'Year-month': 'Month', 'Sales': 'Total Sales'},
-             title='Sales per month')
+             title='Sales per Month', markers=True)
+  fig.update_traces(line=dict(width=2), fill='tonexty', fillcolor='rgba(0, 176, 246, 0.2)')
+  fig.update_layout(yaxis=dict(tickprefix="$", tickformat=","))
   st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 
