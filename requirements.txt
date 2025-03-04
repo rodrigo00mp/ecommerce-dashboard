@@ -1,0 +1,9 @@
+markdown-it-py==3.0.0
+millify==0.1.1
+numerize==0.12
+numpy==2.2.2
+pandas==2.2.3
+plotly==6.0.0
+streamlit==1.41.1
+us==3.2.0
+
